@@ -1,5 +1,10 @@
 const API_URL = "http://localhost:4000/search";
 
+const UPLOAD_URL = "http://localhost:4006/upload-files";
+
+const fileInput = document.getElementById("fileInput");
+const uploadButton = document.getElementById("uploadButton");
+
 const searchForm = document.getElementById("searchForm");
 const searchInput = document.getElementById("searchInput");
 
@@ -82,6 +87,47 @@ function renderTokens(tokens) {
 
   tokensSection.classList.remove("d-none");
 }
+
+uploadButton.addEventListener("click", async () => {
+  const files = fileInput.files;
+
+  if (!files || files.length === 0) {
+    alert("Selecciona al menos un archivo TXT o PDF.");
+    return;
+  }
+
+  const formData = new FormData();
+
+  Array.from(files).forEach(file => {
+    formData.append("files", file);
+  });
+
+  try {
+    uploadButton.disabled = true;
+    uploadButton.textContent = "Subiendo...";
+
+    const response = await fetch(UPLOAD_URL, {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error al subir archivos");
+    }
+
+    alert("Archivos subidos correctamente.");
+    fileInput.value = "";
+
+  } catch (error) {
+    console.error("Error:", error);
+    alert(error.message || "No se pudieron subir los archivos.");
+  } finally {
+    uploadButton.disabled = false;
+    uploadButton.textContent = "Subir archivos";
+  }
+});
 
 function renderResults(results, mode) {
   if (results.length === 0) {

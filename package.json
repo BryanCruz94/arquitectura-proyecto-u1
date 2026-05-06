@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently -n CLEAN,NORM,TOKEN,TXT,PDF,GATE -c blue,green,yellow,magenta,cyan,white \"node filters/cleaning-filter/server.js\" \"node filters/normalization-filter/server.js\" \"node filters/tokenization-filter/server.js\" \"node filters/search-txt-filter/server.js\" \"node filters/search-pdf-filter/server.js\" \"node gateway/server.js\""
+    "start": "concurrently -n CLEAN,NORM,TOKEN,TXT,PDF,GATE,UPLOAD -c blue,green,yellow,magenta,cyan,white \"node filters/cleaning-filter/server.js\" \"node filters/normalization-filter/server.js\" \"node filters/tokenization-filter/server.js\" \"node filters/search-txt-filter/server.js\" \"node filters/search-pdf-filter/server.js\" \"node gateway/server.js\" \"node gateway/server-upload.js\""
   },
   "keywords": [],
   "author": "",
@@ -14,6 +14,7 @@
     "concurrently": "^9.2.1",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "multer": "^2.1.1",
     "pdf-parse": "^2.4.5"
   }
 }

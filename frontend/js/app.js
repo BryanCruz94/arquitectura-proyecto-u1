@@ -1,9 +1,14 @@
 const API_URL = "http://localhost:4000/search";
 
-const UPLOAD_URL = "http://localhost:4006/upload-files";
+//Para el servicio de upload
+const UPLOAD_URL = "http://localhost:4006";
 
 const fileInput = document.getElementById("fileInput");
 const uploadButton = document.getElementById("uploadButton");
+const clearFilesButton = document.getElementById("clearFilesButton");
+const uploadedFilesSection = document.getElementById("uploadedFilesSection");
+const uploadedFilesList = document.getElementById("uploadedFilesList");
+//fin de upload
 
 const searchForm = document.getElementById("searchForm");
 const searchInput = document.getElementById("searchInput");
@@ -88,47 +93,6 @@ function renderTokens(tokens) {
   tokensSection.classList.remove("d-none");
 }
 
-uploadButton.addEventListener("click", async () => {
-  const files = fileInput.files;
-
-  if (!files || files.length === 0) {
-    alert("Selecciona al menos un archivo TXT o PDF.");
-    return;
-  }
-
-  const formData = new FormData();
-
-  Array.from(files).forEach(file => {
-    formData.append("files", file);
-  });
-
-  try {
-    uploadButton.disabled = true;
-    uploadButton.textContent = "Subiendo...";
-
-    const response = await fetch(UPLOAD_URL, {
-      method: "POST",
-      body: formData
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Error al subir archivos");
-    }
-
-    alert("Archivos subidos correctamente.");
-    fileInput.value = "";
-
-  } catch (error) {
-    console.error("Error:", error);
-    alert(error.message || "No se pudieron subir los archivos.");
-  } finally {
-    uploadButton.disabled = false;
-    uploadButton.textContent = "Subir archivos";
-  }
-});
-
 function renderResults(results, mode) {
   if (results.length === 0) {
     emptyState.classList.remove("d-none");
@@ -164,3 +128,110 @@ function renderResults(results, mode) {
 
   resultsSection.classList.remove("d-none");
 }
+
+
+// Funciones para el servicio de upload
+async function loadUploadedFiles() {
+  try {
+    const response = await fetch(`${UPLOAD_URL}/uploaded-files`);
+    const data = await response.json();
+
+    renderUploadedFiles(data.files || []);
+  } catch (error) {
+    console.error("Error al cargar archivos:", error);
+  }
+}
+
+function renderUploadedFiles(files) {
+  uploadedFilesList.innerHTML = "";
+
+  if (files.length === 0) {
+    uploadedFilesSection.classList.add("d-none");
+    return;
+  }
+
+  files.forEach(file => {
+    const li = document.createElement("li");
+    li.textContent = `${file.name} - ${formatFileSize(file.size)}`;
+    uploadedFilesList.appendChild(li);
+  });
+
+  uploadedFilesSection.classList.remove("d-none");
+}
+
+function formatFileSize(size) {
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
+  return `${(size / 1024 / 1024).toFixed(2)} MB`;
+}
+
+
+uploadButton.addEventListener("click", async () => {
+  const files = fileInput.files;
+
+  if (!files || files.length === 0) {
+    alert("Selecciona al menos un archivo TXT o PDF.");
+    return;
+  }
+
+  const formData = new FormData();
+
+  Array.from(files).forEach(file => {
+    formData.append("files", file);
+  });
+
+  try {
+    uploadButton.disabled = true;
+    uploadButton.textContent = "Subiendo...";
+
+    const response = await fetch(`${UPLOAD_URL}/upload-files`, {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error al subir archivos");
+    }
+
+    fileInput.value = "";
+    renderUploadedFiles(data.files || []);
+
+  } catch (error) {
+    console.error("Error:", error);
+    alert(error.message || "No se pudieron subir los archivos.");
+  } finally {
+    uploadButton.disabled = false;
+    uploadButton.textContent = "Subir archivos";
+  }
+});
+
+clearFilesButton.addEventListener("click", async () => {
+  const confirmDelete = confirm(
+    "¿Seguro que deseas eliminar los archivos cargados?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    const response = await fetch(`${UPLOAD_URL}/uploaded-files`, {
+      method: "DELETE"
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error al eliminar archivos");
+    }
+
+    renderUploadedFiles([]);
+
+  } catch (error) {
+    console.error("Error:", error);
+    alert("No se pudieron eliminar los archivos.");
+  }
+});
+
+loadUploadedFiles();
+// Fin de funciones para el servicio de upload

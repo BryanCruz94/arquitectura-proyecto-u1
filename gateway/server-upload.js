@@ -16,6 +16,25 @@ if (!fs.existsSync(dataPath)) {
   fs.mkdirSync(dataPath, { recursive: true });
 }
 
+function getCurrentFiles() {
+  return fs.readdirSync(dataPath)
+    .filter(file => {
+      const ext = path.extname(file).toLowerCase();
+      return ext === ".txt" || ext === ".pdf";
+    })
+    .map(file => {
+      const filePath = path.join(dataPath, file);
+      const stats = fs.statSync(filePath);
+
+      return {
+        name: file,
+        size: stats.size,
+        type: path.extname(file).toLowerCase(),
+        uploadedAt: stats.birthtime
+      };
+    });
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, dataPath);
@@ -27,10 +46,9 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = [".txt", ".pdf"];
   const ext = path.extname(file.originalname).toLowerCase();
 
-  if (allowedTypes.includes(ext)) {
+  if (ext === ".txt" || ext === ".pdf") {
     cb(null, true);
   } else {
     cb(new Error("Solo se permiten archivos TXT y PDF"));
@@ -46,25 +64,63 @@ const upload = multer({
 });
 
 app.post("/upload-files", upload.array("files", 20), (req, res) => {
-  console.log("[Upload Service] Archivos recibidos:", req.files);
-
   if (!req.files || req.files.length === 0) {
     return res.status(400).json({
       error: "No se recibieron archivos"
     });
   }
 
-  const uploadedFiles = req.files.map(file => ({
-    originalName: file.originalname,
-    savedName: file.filename,
-    type: path.extname(file.originalname).toLowerCase(),
-    size: file.size
-  }));
-
   res.json({
     message: "Archivos subidos correctamente",
-    files: uploadedFiles
+    files: getCurrentFiles()
   });
+});
+
+app.get("/uploaded-files", (req, res) => {
+  res.json({
+    files: getCurrentFiles()
+  });
+});
+
+app.delete("/uploaded-files", (req, res) => {
+  try {
+    console.log("[Upload Service] Ruta dataPath:", dataPath);
+
+    const files = fs.readdirSync(dataPath)
+      .filter(file => {
+        const ext = path.extname(file).toLowerCase();
+        return ext === ".txt" || ext === ".pdf";
+      });
+
+    console.log("[Upload Service] Archivos a eliminar:", files);
+
+    files.forEach(file => {
+      const filePath = path.join(dataPath, file);
+
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        console.log("[Upload Service] Eliminado:", filePath);
+      }
+    });
+
+    const remainingFiles = getCurrentFiles();
+
+    console.log("[Upload Service] Archivos restantes:", remainingFiles);
+
+    res.json({
+      message: "Archivos temporales eliminados correctamente",
+      deletedCount: files.length,
+      files: remainingFiles
+    });
+
+  } catch (error) {
+    console.error("[Upload Service] Error al eliminar archivos:", error.message);
+
+    res.status(500).json({
+      error: "No se pudieron eliminar los archivos temporales",
+      detail: error.message
+    });
+  }
 });
 
 app.listen(PORT, () => {

@@ -4,6 +4,7 @@
   --blue-main: #0b5f9e;
   --blue-soft: #113c68;
   --cyan-main: #00d9ff;
+  --delete-main: #ff854d;
   --cyan-soft: #75eaff;
   --white-main: #f5fbff;
   --text-muted: #9fbfd3;
@@ -28,7 +29,7 @@ body {
 .app-container {
   width: min(1000px, 92%);
   margin: 0 auto;
-  padding: 70px 0 40px;
+  padding: 30px 0 40px;
 }
 
 .hero {
@@ -65,9 +66,16 @@ h2 {
     0 0 35px rgba(0, 217, 255, 0.35);
 }
 
+#logo {
+  width: 388px;
+  height: auto;
+  filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.5));
+}
+
 .subtitle {
   color: var(--text-muted);
   margin: 12px 0 28px;
+  font: 1.2em sans-serif;
 }
 
 .search-box {
@@ -106,6 +114,15 @@ h2 {
   font-weight: 700;
   color: #00111d;
   background: linear-gradient(135deg, var(--cyan-main), var(--white-main));
+  border: none;
+}
+
+.btn-limpiar {
+  border-radius: 999px;
+  padding: 0 28px;
+  font-weight: 700;
+  color: #00111d;
+  background: linear-gradient(135deg, var(--delete-main), var(--white-main));
   border: none;
 }
 

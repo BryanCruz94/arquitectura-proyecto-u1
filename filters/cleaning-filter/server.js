@@ -7,6 +7,7 @@ const PORT = 4001;
 app.use(cors());
 app.use(express.json());
 
+//Filtro de limpieza: Elimina caracteres especiales y normaliza el texto
 app.post("/clean", (req, res) => {
   const { text } = req.body;
 

@@ -132,6 +132,11 @@ h2 {
   box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
 }
 
+.history-button {
+  margin-top: 18px;
+  min-height: 44px;
+}
+
 .result-card {
   margin-top: 24px;
   padding: 24px;
@@ -183,6 +188,14 @@ h2 {
 .preview {
   color: #d9edf7;
   margin: 0;
+}
+
+.history-result h4 {
+  line-height: 1.45;
+}
+
+.history-tokens {
+  margin-top: 12px;
 }
 
 .file-type {

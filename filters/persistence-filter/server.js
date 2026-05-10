@@ -97,6 +97,28 @@ app.post("/persist", async (req, res) => {
   }
 });
 
+app.get("/history", async (req, res) => {
+  try {
+    await ensureDatabase();
+
+    const [rows] = await pool.execute(
+      `SELECT id, texto_original, tokens, creado_en
+       FROM busquedas
+       ORDER BY creado_en DESC, id DESC`
+    );
+
+    res.json({
+      searches: rows
+    });
+  } catch (error) {
+    console.error("[Persistence Filter] Error al consultar historial:", error.message);
+
+    res.status(500).json({
+      error: "Error al consultar el historial de busquedas"
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`[Persistence Filter] Ejecutandose en http://localhost:${PORT}`);
 });

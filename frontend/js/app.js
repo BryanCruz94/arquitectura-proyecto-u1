@@ -12,6 +12,7 @@ const uploadedFilesList = document.getElementById("uploadedFilesList");
 
 const searchForm = document.getElementById("searchForm");
 const searchInput = document.getElementById("searchInput");
+const historyButton = document.getElementById("historyButton");
 
 const loading = document.getElementById("loading");
 const tokensSection = document.getElementById("tokensSection");
@@ -22,6 +23,10 @@ const tokensContainer = document.getElementById("tokensContainer");
 const resultsContainer = document.getElementById("resultsContainer");
 
 let searchMode = "OR";
+
+historyButton.addEventListener("click", () => {
+  window.location.href = "./history.html";
+});
 
 searchForm.addEventListener("submit", async (event) => {
   event.preventDefault();

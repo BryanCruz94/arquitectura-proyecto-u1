@@ -15,12 +15,12 @@ app.post("/search", async (req, res) => {
 
     if (searchMode !== "OR" && searchMode !== "AND") {
       return res.status(400).json({
-        error: "El modo de búsqueda debe ser OR o AND"
+        error: "El modo de busqueda debe ser OR o AND"
       });
     }
 
     console.log("\n[Gateway] Nueva solicitud:", text);
-    console.log("[Gateway] Modo de búsqueda:", searchMode);
+    console.log("[Gateway] Modo de busqueda:", searchMode);
 
     // 1. Cleaning
     const cleaningRes = await fetch("http://localhost:4001/clean", {
@@ -53,7 +53,25 @@ app.post("/search", async (req, res) => {
 
     console.log("[Gateway] Tokens finales:", tokens);
 
-    // 4. BIFURCACIÓN TXT + PDF
+    // 4. Persistence
+    const persistenceRes = await fetch("http://localhost:4007/persist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        originalText: text,
+        tokens
+      })
+    });
+
+    const persistenceData = await persistenceRes.json();
+
+    if (!persistenceRes.ok) {
+      throw new Error(persistenceData.error || "Error en el filtro de persistencia");
+    }
+
+    console.log("[Gateway] Registro guardado en MySQL:", persistenceData.id);
+
+    // 5. Bifurcacion TXT + PDF
     const [txtRes, pdfRes] = await Promise.all([
       fetch("http://localhost:4004/search-txt", {
         method: "POST",
@@ -85,6 +103,7 @@ app.post("/search", async (req, res) => {
 
     res.json({
       tokens,
+      persistenceId: persistenceData.id,
       mode: searchMode,
       results: combinedResults
     });
@@ -99,5 +118,5 @@ app.post("/search", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`[Gateway] Ejecutándose en http://localhost:${PORT}`);
+  console.log(`[Gateway] Ejecutandose en http://localhost:${PORT}`);
 });

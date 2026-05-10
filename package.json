@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently -n CLEAN,NORM,TOKEN,TXT,PDF,GATE,UPLOAD -c blue,green,yellow,magenta,cyan,white \"node filters/cleaning-filter/server.js\" \"node filters/normalization-filter/server.js\" \"node filters/tokenization-filter/server.js\" \"node filters/search-txt-filter/server.js\" \"node filters/search-pdf-filter/server.js\" \"node gateway/server.js\" \"node gateway/server-upload.js\""
+    "start": "concurrently -n CLEAN,NORM,TOKEN,PERSIST,TXT,PDF,GATE,UPLOAD -c blue,green,yellow,magenta,cyan,red,white,gray \"node filters/cleaning-filter/server.js\" \"node filters/normalization-filter/server.js\" \"node filters/tokenization-filter/server.js\" \"node filters/persistence-filter/server.js\" \"node filters/search-txt-filter/server.js\" \"node filters/search-pdf-filter/server.js\" \"node gateway/server.js\" \"node gateway/server-upload.js\""
   },
   "keywords": [],
   "author": "",
@@ -13,8 +13,10 @@
   "dependencies": {
     "concurrently": "^9.2.1",
     "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "multer": "^2.1.1",
+    "mysql2": "^3.22.3",
     "pdf-parse": "^2.4.5"
   }
 }

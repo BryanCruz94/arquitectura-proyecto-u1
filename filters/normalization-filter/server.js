@@ -7,6 +7,7 @@ const PORT = 4002;
 app.use(cors());
 app.use(express.json());
 
+//Filtro de normalización: Minúsculas + Limpia espacios extra
 app.post("/normalize", (req, res) => {
   const { text } = req.body;
 
